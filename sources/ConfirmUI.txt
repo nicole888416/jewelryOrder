@@ -1,0 +1,200 @@
+package controller;
+
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.*;
+import javax.swing.border.*;
+import javax.swing.table.*;
+
+import dao.ProductDAOImpl;
+import model.Customer;
+import model.JewelryOrder;
+import service.impl.CustomerServiceImpl;
+import service.impl.JewelryOrderServiceImpl;
+import util.JewelryOrderTableModel;
+import util.Tool;
+
+public class ConfirmUI extends JFrame {
+
+    private static final long serialVersionUID = 1L;
+    private JPanel contentPane;
+    private JTable table;
+
+    private final Color BRAND_PINK = new Color(230, 128, 128);
+    private final Color GLASS_WHITE = new Color(255, 255, 255, 180);
+
+    private final int PRICE_RING = 15000;
+    private final int PRICE_EARRINGS = 30000;
+    private final int PRICE_NECKLACE = 25000;
+    private final int PRICE_BRACELET = 20000;
+
+    public static void main(String[] args) {
+        EventQueue.invokeLater(() -> {
+            try {
+                ConfirmUI frame = new ConfirmUI();
+                frame.setVisible(true);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    public ConfirmUI() {
+        setTitle("Jewellery Store - Order Confirmation");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setBounds(100, 100, 1000, 552);
+
+        contentPane = new JPanel(null);
+        contentPane.setBackground(BRAND_PINK);
+        setContentPane(contentPane);
+
+        JLabel lblTitle = new JLabel("Review Your Selection");
+        lblTitle.setFont(new Font("Bell MT", Font.BOLD | Font.ITALIC, 36));
+        lblTitle.setForeground(Color.WHITE);
+        lblTitle.setBounds(50, 30, 500, 50);
+        contentPane.add(lblTitle);
+
+        Object orderObj = Tool.readObject("jewelryorder");
+        Object customerObj = Tool.readObject("customer");
+
+        if (orderObj != null && customerObj != null) {
+            final JewelryOrder jewelryorder = (JewelryOrder) orderObj;
+            Customer currentCustomer = (Customer) customerObj;
+
+            // --- 1. 計算原始金額 ---
+            int originalSum = jewelryorder.getRing() * PRICE_RING +
+                              jewelryorder.getEarrings() * PRICE_EARRINGS +
+                              jewelryorder.getNecklace() * PRICE_NECKLACE +
+                              jewelryorder.getBracelet() * PRICE_BRACELET;
+
+            // --- 2. 折扣邏輯：會員折扣 × 首購 95 折 ---
+            CustomerServiceImpl customerService = new CustomerServiceImpl();
+            JewelryOrderServiceImpl orderService = new JewelryOrderServiceImpl();
+           // double baseDiscount = customerService.calculateDiscount(currentCustomer);
+
+            List<JewelryOrder> history = null;
+            try {
+                history = orderService.getOrderByCustomerName(currentCustomer.getUsername());
+            } catch (Exception e) {
+                history = new ArrayList<>();
+            }
+            boolean isFirstPurchase = (history == null || history.size() == 0);
+            double firstPurchaseDiscount = isFirstPurchase ? 0.95 : 1.0;
+
+            int finalSum = (int) Math.round(originalSum  * firstPurchaseDiscount);
+
+            // --- 3. 畫面呈現 ---
+            JPanel mainPanel = new JPanel(null);
+            mainPanel.setBackground(GLASS_WHITE);
+            mainPanel.setBounds(50, 100, 600, 380);
+            contentPane.add(mainPanel);
+
+            JScrollPane scrollPane = new JScrollPane();
+            scrollPane.setBounds(30, 30, 540, 100);
+            scrollPane.setBorder(new LineBorder(BRAND_PINK, 1));
+            mainPanel.add(scrollPane);
+
+            List<JewelryOrder> list = new ArrayList<>();
+            list.add(jewelryorder);
+            table = new JTable(new JewelryOrderTableModel(list));
+            styleTable(table);
+            scrollPane.setViewportView(table);
+
+            JLabel lblSum = new JLabel("NT$ " + String.format("%,d", finalSum));
+            lblSum.setForeground(new Color(139, 0, 0));
+            lblSum.setFont(new Font("Bell MT", Font.BOLD, 48));
+            lblSum.setBounds(30, 180, 500, 60);
+            mainPanel.add(lblSum);
+
+            if (isFirstPurchase) {
+                JLabel lblPromo = new JLabel("✨ First Purchase 5% OFF Applied", SwingConstants.LEFT);
+                lblPromo.setFont(new Font("Bell MT", Font.ITALIC, 14));
+                lblPromo.setForeground(new Color(178, 34, 34));
+                lblPromo.setBounds(30, 240, 400, 25);
+                mainPanel.add(lblPromo);
+            }
+
+            // --- 4. 確認付款按鈕 ---
+            JButton btnConfirm = new JButton("CONFIRM & PAY");
+            btnConfirm.setBackground(Color.BLACK);
+            btnConfirm.setForeground(Color.WHITE);
+            btnConfirm.setFont(new Font("Bell MT", Font.BOLD, 16));
+            btnConfirm.setBounds(30, 300, 250, 45);
+            mainPanel.add(btnConfirm);
+
+            btnConfirm.addActionListener(e -> {
+                ProductDAOImpl productDao = new ProductDAOImpl();
+
+                StringBuilder outOfStockItems = new StringBuilder();
+                checkStock(productDao, "Ring", jewelryorder.getRing(), outOfStockItems);
+                checkStock(productDao, "Earrings", jewelryorder.getEarrings(), outOfStockItems);
+                checkStock(productDao, "Necklace", jewelryorder.getNecklace(), outOfStockItems);
+                checkStock(productDao, "Bracelet", jewelryorder.getBracelet(), outOfStockItems);
+
+                if (outOfStockItems.length() > 0) {
+                    JOptionPane.showMessageDialog(this,
+                            "Order Failed! The following items are out of stock:\n" + outOfStockItems,
+                            "Inventory Alert", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
+                // 寫入訂單 + 扣庫存
+                new JewelryOrderServiceImpl().addJewelryOrder(jewelryorder);
+                if (jewelryorder.getRing() > 0) productDao.updateStock("Ring", jewelryorder.getRing());
+                if (jewelryorder.getEarrings() > 0) productDao.updateStock("Earrings", jewelryorder.getEarrings());
+                if (jewelryorder.getNecklace() > 0) productDao.updateStock("Necklace", jewelryorder.getNecklace());
+                if (jewelryorder.getBracelet() > 0) productDao.updateStock("Bracelet", jewelryorder.getBracelet());
+
+                // ✅ 修正：存檔時參數順序改正確
+                Tool.saveObject(finalSum, "finalSum");
+                Tool.saveObject(isFirstPurchase, "isFirstPurchase");
+
+                JOptionPane.showMessageDialog(this, "Payment Successful! Inventory Updated.");
+                new FinishedUI().setVisible(true);
+                dispose();
+            });
+
+            // --- 5. 返回修改 ---
+            JButton btnBack = new JButton("RE-SELECT");
+            btnBack.setBackground(Color.WHITE);
+            btnBack.setFont(new Font("Bell MT", Font.BOLD, 14));
+            btnBack.setBounds(300, 300, 150, 45);
+            mainPanel.add(btnBack);
+            btnBack.addActionListener(e -> {
+                new AddOrderUI().setVisible(true);
+                dispose();
+            });
+        }
+
+        // 右側圖片區
+        JLabel lblAd = new JLabel();
+        lblAd.setIcon(new ImageIcon(new ImageIcon("resources/confirm_ad.jpg").getImage().getScaledInstance(450, 552, Image.SCALE_SMOOTH)));
+        lblAd.setBounds(650, 0, 336, 515);
+        contentPane.add(lblAd);
+    }
+
+    private void checkStock(ProductDAOImpl dao, String name, int orderQty, StringBuilder errorMsg) {
+        if (orderQty <= 0) return;
+        int currentStock = dao.getStockByName(name);
+        if (currentStock < orderQty) {
+            errorMsg.append("- ").append(name)
+                    .append(": Requested ").append(orderQty)
+                    .append(", but only ").append(currentStock).append(" left.\n");
+        }
+    }
+
+    private void styleTable(JTable table) {
+        table.setRowHeight(35);
+        table.setFont(new Font("Microsoft JhengHei", Font.PLAIN, 14));
+        JTableHeader header = table.getTableHeader();
+        header.setBackground(Color.BLACK);
+        header.setForeground(Color.WHITE);
+        header.setFont(new Font("Microsoft JhengHei", Font.BOLD, 14));
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+        for (int i = 0; i < table.getColumnCount(); i++) {
+            table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
+    }
+}

@@ -1,0 +1,222 @@
+package controller.product;
+
+import java.awt.*;
+import java.util.List;
+import javax.swing.*;
+import javax.swing.border.*;
+import javax.swing.table.*;
+
+import dao.ProductDAOImpl; 
+import model.Product;
+import util.ProductTableModel;
+
+public class ProductManagerUI extends JFrame {
+
+	private static final long serialVersionUID = 1L;
+	private JPanel contentPane;
+	private JTable table;
+	private ProductTableModel tableModel = new ProductTableModel();
+
+	private JTextField txtId, txtName, txtPrice, txtStock;
+	private final ProductDAOImpl dao = new ProductDAOImpl();
+
+	private final Color BRAND_PINK = new Color(230, 128, 128);
+	private final Color GLASS_WHITE = new Color(255, 255, 255, 220);
+	private final Color GOLD_BORDER = new Color(212, 175, 55);
+
+	public static void main(String[] args) {
+		EventQueue.invokeLater(() -> {
+			try {
+				ProductManagerUI frame = new ProductManagerUI();
+				frame.setVisible(true);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
+	}
+
+	public ProductManagerUI() {
+		setTitle("Jewellery Store - Inventory Management");
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		setBounds(100, 100, 1000, 600);
+
+		// 使用 null layout
+		contentPane = new JPanel(null);
+		contentPane.setBackground(BRAND_PINK);
+		setContentPane(contentPane);
+
+		// --- 標題 ---
+		JLabel lblTitle = new JLabel("INVENTORY CONTROL");
+		lblTitle.setFont(new Font("Bell MT", Font.BOLD | Font.ITALIC, 32));
+		lblTitle.setForeground(Color.WHITE);
+		lblTitle.setBounds(40, 20, 500, 45);
+		contentPane.add(lblTitle);
+
+		// --- 1. 表格區域 ---
+		// 將 tablePanel 容器加大並調整邊界，確保 Header 能顯示
+		JPanel tablePanel = new JPanel(new BorderLayout());
+		tablePanel.setBackground(GLASS_WHITE);
+		tablePanel.setBounds(40, 80, 580, 440); 
+		tablePanel.setBorder(new LineBorder(Color.WHITE, 1));
+		contentPane.add(tablePanel);
+
+		table = new JTable(tableModel);
+		styleTable(table);
+		
+		// 【重要】將 table 放入 ScrollPane，並直接加入到 BorderLayout.CENTER
+		JScrollPane scrollPane = new JScrollPane(table);
+		scrollPane.getViewport().setBackground(Color.WHITE);
+		tablePanel.add(scrollPane, BorderLayout.CENTER);
+
+		// --- 2. 右側表單編輯區 ---
+		JPanel editPanel = new JPanel(null);
+		editPanel.setBackground(GLASS_WHITE);
+		editPanel.setBounds(650, 80, 300, 440);
+		editPanel.setBorder(new LineBorder(GOLD_BORDER, 1));
+		contentPane.add(editPanel);
+
+		JLabel lblEditTitle = new JLabel("PRODUCT EDITOR", SwingConstants.CENTER);
+		lblEditTitle.setFont(new Font("Bell MT", Font.BOLD, 18));
+		lblEditTitle.setBounds(0, 15, 300, 30);
+		editPanel.add(lblEditTitle);
+
+		String[] labels = {"ID (Auto):", "Name:", "Price:", "Stock:"};
+		txtId = new JTextField(); txtId.setEditable(false);
+		txtName = new JTextField();
+		txtPrice = new JTextField();
+		txtStock = new JTextField();
+		JTextField[] fields = {txtId, txtName, txtPrice, txtStock};
+
+		for (int i = 0; i < labels.length; i++) {
+			JLabel lbl = new JLabel(labels[i]);
+			lbl.setFont(new Font("Bell MT", Font.BOLD, 14));
+			lbl.setBounds(25, 65 + (i * 45), 100, 25);
+			editPanel.add(lbl);
+
+			fields[i].setBounds(110, 65 + (i * 45), 160, 28);
+			fields[i].setBorder(new LineBorder(new Color(200, 200, 200)));
+			editPanel.add(fields[i]);
+		}
+
+		// --- 3. 按鈕功能 ---
+		JButton btnUpdate = new JButton("UPDATE SELECTED");
+		btnUpdate.setBackground(Color.BLACK);
+		btnUpdate.setForeground(Color.WHITE);
+		btnUpdate.setFocusPainted(false);
+		btnUpdate.setFont(new Font("Bell MT", Font.BOLD, 13));
+		btnUpdate.setBounds(25, 260, 250, 40);
+		editPanel.add(btnUpdate);
+		btnUpdate.addActionListener(e -> handleUpdate());
+
+		JButton btnAdd = new JButton("ADD NEW PRODUCT");
+		btnAdd.setBackground(new Color(60, 60, 60));
+		btnAdd.setForeground(GOLD_BORDER);
+		btnAdd.setFocusPainted(false);
+		btnAdd.setFont(new Font("Bell MT", Font.BOLD, 13));
+		btnAdd.setBounds(25, 310, 250, 40);
+		editPanel.add(btnAdd);
+		btnAdd.addActionListener(e -> handleAdd());
+
+		JButton btnReload = new JButton("SYNC / RELOAD");
+		btnReload.setBackground(Color.WHITE);
+		btnReload.setFocusPainted(false);
+		btnReload.setFont(new Font("Bell MT", Font.BOLD, 13));
+		btnReload.setBounds(25, 360, 250, 40);
+		editPanel.add(btnReload);
+		btnReload.addActionListener(e -> reloadFromDB());
+
+		// 點擊表格列同步到右側表單
+		table.getSelectionModel().addListSelectionListener(e -> {
+			if (!e.getValueIsAdjusting()) {
+				int row = table.getSelectedRow();
+				if (row >= 0) fillForm(tableModel.getRow(row));
+			}
+		});
+
+		reloadFromDB();
+		setLocationRelativeTo(null);
+	}
+
+	private void styleTable(JTable table) {
+	    table.setRowHeight(35);
+	    // 使用「微軟正黑體」或「Dialog」，這兩者都支援中英文
+	    Font generalFont = new Font("Microsoft JhengHei", Font.PLAIN, 14);
+	    table.setFont(generalFont);
+	    table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+	    // 處理 Header (標題列)
+	    JTableHeader header = table.getTableHeader();
+	    header.setReorderingAllowed(false);
+	    header.setBackground(new Color(50, 50, 50));
+	    header.setForeground(Color.WHITE);
+	    
+	    // 【關鍵修正】標題字型必須支援中文，不能只用 Bell MT
+	    // 如果想要英文字風，可以設定為 "Dialog" 或 "Microsoft JhengHei"
+	    header.setFont(new Font("Microsoft JhengHei", Font.BOLD, 15)); 
+	    header.setPreferredSize(new Dimension(header.getWidth(), 40));
+
+	    // 文字居中渲染
+	    DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+	    centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+	    
+	    // 從第 1 欄開始套用居中（第 0 欄是 Checkbox，套用渲染器會失效）
+	    for (int i = 1; i < table.getColumnCount(); i++) {
+	        table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+	    }
+	}
+
+	private void handleUpdate() {
+		try {
+			if(txtId.getText().isEmpty()) {
+				JOptionPane.showMessageDialog(this, "Please select a product from the table.");
+				return;
+			}
+			Product p = new Product();
+			p.setId(Integer.parseInt(txtId.getText()));
+			p.setName(txtName.getText());
+			p.setPrice(Integer.parseInt(txtPrice.getText()));
+			p.setStock(Integer.parseInt(txtStock.getText()));
+			dao.update(p);
+			JOptionPane.showMessageDialog(this, "Update Successful!");
+			reloadFromDB();
+		} catch (Exception ex) {
+			JOptionPane.showMessageDialog(this, "Update Failed: " + ex.getMessage());
+		}
+	}
+
+	private void handleAdd() {
+		try {
+			if(txtName.getText().trim().isEmpty()) {
+				JOptionPane.showMessageDialog(this, "Name cannot be empty.");
+				return;
+			}
+			Product p = new Product();
+			p.setName(txtName.getText());
+			p.setPrice(Integer.parseInt(txtPrice.getText()));
+			p.setStock(Integer.parseInt(txtStock.getText()));
+			dao.insert(p); 
+			JOptionPane.showMessageDialog(this, "Product Added!");
+			reloadFromDB();
+			fillForm(null);
+		} catch (Exception ex) {
+			JOptionPane.showMessageDialog(this, "Add Failed. Check numeric fields.");
+		}
+	}
+
+	private void reloadFromDB() {
+		List<Product> list = dao.findAll();
+		tableModel.setData(list);
+	}
+
+	private void fillForm(Product p) {
+		if (p == null) {
+			txtId.setText(""); txtName.setText("");
+			txtPrice.setText(""); txtStock.setText("");
+		} else {
+			txtId.setText(String.valueOf(p.getId()));
+			txtName.setText(p.getName());
+			txtPrice.setText(String.valueOf(p.getPrice()));
+			txtStock.setText(String.valueOf(p.getStock()));
+		}
+	}
+}

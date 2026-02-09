@@ -1,0 +1,149 @@
+package controller.customer;
+
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+
+import controller.product.ProductManagerUI;
+import model.Customer;
+import service.customer.impl.CustomerServiceImpl;
+import util.Tool;
+
+public class LoginUI extends JFrame {
+
+	private static final long serialVersionUID = 1L;
+	private JPanel contentPane;
+	private JTextField username;
+	private JPasswordField password;
+
+	public static void main(String[] args) {
+		EventQueue.invokeLater(() -> {
+			try {
+				LoginUI frame = new LoginUI();
+				frame.setVisible(true);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
+	}
+
+	public LoginUI() {
+		setTitle("Jewellery Store - Login");
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setBounds(100, 100, 1000, 552);
+		
+		contentPane = new JPanel(null);
+		contentPane.setBackground(new Color(230, 128, 128));
+		setContentPane(contentPane);
+
+		// --- 1. 半透明登入面板 ---
+		JPanel loginPanel = new JPanel(null);
+		loginPanel.setBackground(new Color(255, 255, 255, 180));
+		loginPanel.setBounds(596, 180, 340, 240); 
+		contentPane.add(loginPanel);
+
+		JLabel lblUser = new JLabel("Username :");
+		lblUser.setFont(new Font("Bell MT", Font.BOLD, 16));
+		lblUser.setBounds(30, 30, 92, 25);
+		loginPanel.add(lblUser);
+
+		username = new JTextField();
+		username.setBounds(130, 30, 180, 25);
+		loginPanel.add(username);
+
+		JLabel lblPass = new JLabel("Password :");
+		lblPass.setFont(new Font("Bell MT", Font.BOLD, 16));
+		lblPass.setBounds(30, 75, 85, 25);
+		loginPanel.add(lblPass);
+
+		password = new JPasswordField();
+		password.setBounds(130, 75, 180, 25);
+		loginPanel.add(password);
+
+		JLabel lblPromo = new JLabel("Member's First Order: 5% OFF");
+		lblPromo.setForeground(new Color(178, 34, 34));
+		lblPromo.setFont(new Font("Bell MT", Font.ITALIC, 13));
+		lblPromo.setBounds(130, 105, 180, 20);
+		loginPanel.add(lblPromo);
+
+		// --- 2. 功能按鈕與邏輯 ---
+		CustomerServiceImpl customerServiceImpl = new CustomerServiceImpl();
+
+		// 會員登入
+		JButton btnLogin = new JButton("LOGIN");
+		btnLogin.setFont(new Font("Bell MT", Font.BOLD, 14));
+		btnLogin.setBackground(Color.BLACK);
+		btnLogin.setForeground(Color.WHITE);
+		btnLogin.setBounds(30, 140, 135, 35);
+		loginPanel.add(btnLogin);
+		btnLogin.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				String user = username.getText();
+				String pass = new String(password.getPassword());
+				Customer customer = customerServiceImpl.find_customer_by_username_and_password(user, pass);
+				
+				if(customer != null) {
+				    Tool.saveObject(customer, "customer"); 
+				    new LoginSuccessUI().setVisible(true);
+				    dispose();
+				} else {
+					new LoginErrorUI().setVisible(true);
+					dispose();
+				}
+			}
+		});
+
+		// 註冊會員
+		JButton btnRegister = new JButton("REGISTER");
+		btnRegister.setFont(new Font("Bell MT", Font.BOLD, 14));
+		btnRegister.setBackground(Color.WHITE);
+		btnRegister.setBounds(175, 140, 135, 35);
+		loginPanel.add(btnRegister);
+		btnRegister.addActionListener(e -> {
+			new AddCustomerUI().setVisible(true);
+			dispose();
+		});
+
+		// 後台管理 (admin/admin)
+		JButton btnManager = new JButton("ADMIN PANEL");
+		btnManager.setFont(new Font("Bell MT", Font.BOLD, 13));
+		btnManager.setForeground(Color.WHITE);
+		btnManager.setBackground(new Color(70, 130, 180));
+		btnManager.setBounds(30, 185, 280, 30);
+		loginPanel.add(btnManager);
+		btnManager.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				String user = username.getText();
+				String pass = new String(password.getPassword());
+				if(user.equals("admin") && pass.equals("admin")) {
+					new ProductManagerUI().setVisible(true);
+					dispose();
+				} else {
+					JOptionPane.showMessageDialog(null, "管理者權限驗證失敗！");
+				}
+			}
+		});
+
+		// --- 3. 裝飾元素與背景 ---
+		JLabel lblTitle = new JLabel("Jewellery Store", SwingConstants.CENTER);
+		lblTitle.setFont(new Font("Bell MT", Font.BOLD | Font.ITALIC, 45));
+		lblTitle.setBounds(549, 103, 409, 60);
+		contentPane.add(lblTitle);
+
+		JLabel lblWelcome = new JLabel("- Welcome to explore our latest collection -", SwingConstants.CENTER);
+		lblWelcome.setFont(new Font("Bell MT", Font.BOLD | Font.ITALIC, 22));
+		lblWelcome.setBounds(220, 435, 521, 60);
+		contentPane.add(lblWelcome);
+
+		// 背景大圖 (Login.png)
+		ImageIcon bgImg = new ImageIcon(new ImageIcon("resources/Login.png").getImage().getScaledInstance(1280, 420, Image.SCALE_SMOOTH));
+		JLabel bg = new JLabel(bgImg);
+		bg.setBounds(-23, 0, 1280, 420);
+		contentPane.add(bg);
+
+		setLocationRelativeTo(null);
+	}
+}

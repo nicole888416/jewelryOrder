@@ -1,0 +1,123 @@
+package dao.customer.impl;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import dao.customer.CustomerDao;
+import model.Customer;
+import util.Tool;
+
+public class CustomerDaoImpl implements CustomerDao {
+
+    public static void main(String[] args) {
+        new CustomerDaoImpl().add(new Customer("c001","customer1","taipei","cus1","123","1996-01-01"));
+    }
+
+    Connection conn = Tool.getDb();
+
+    @Override
+    public void add(Customer customer) {
+        String sql = "INSERT INTO customer(customer_no, customer_name, address, username, password, birthday, is_first_order) "
+                   + "VALUES(?,?,?,?,?,?,?)";
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, customer.getCustomer_no());
+            ps.setString(2, customer.getCustomer_name());
+            ps.setString(3, customer.getAddress());
+            ps.setString(4, customer.getUsername());
+            ps.setString(5, customer.getPassword());
+            ps.setString(6, customer.getBirthday());
+            ps.setBoolean(7, customer.isFirstOrder());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public List<Customer> selectByUsernameAndPassword(String username, String password) {
+        String sql = "SELECT * FROM customer WHERE username=? AND password=?";
+        List<Customer> list = new ArrayList<>();
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, username);
+            ps.setString(2, password);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Customer c = new Customer();
+                c.setId(rs.getInt("id"));
+                c.setCustomer_no(rs.getString("customer_no"));
+                c.setCustomer_name(rs.getString("customer_name"));
+                c.setAddress(rs.getString("address"));
+                c.setUsername(rs.getString("username"));
+                c.setPassword(rs.getString("password"));
+                c.setBirthday(rs.getString("birthday"));
+                c.setFirstOrder(rs.getBoolean("is_first_order")); // ✅ 讀取新欄位
+                list.add(c);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public List<Customer> selectByUsername(String username) {
+        String sql = "SELECT * FROM customer WHERE username=?";
+        List<Customer> list = new ArrayList<>();
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, username);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Customer c = new Customer();
+                c.setId(rs.getInt("id"));
+                c.setCustomer_no(rs.getString("customer_no"));
+                c.setCustomer_name(rs.getString("customer_name"));
+                c.setAddress(rs.getString("address"));
+                c.setUsername(rs.getString("username"));
+                c.setPassword(rs.getString("password"));
+                c.setBirthday(rs.getString("birthday"));
+                c.setFirstOrder(rs.getBoolean("is_first_order"));
+                list.add(c);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public void update(Customer customer) {
+        String sql = "UPDATE customer SET customer_no=?, customer_name=?, address=?, username=?, password=?, birthday=?, is_first_order=? WHERE id=?";
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, customer.getCustomer_no());
+            ps.setString(2, customer.getCustomer_name());
+            ps.setString(3, customer.getAddress());
+            ps.setString(4, customer.getUsername());
+            ps.setString(5, customer.getPassword());
+            ps.setString(6, customer.getBirthday());
+            ps.setBoolean(7, customer.isFirstOrder());
+            ps.setInt(8, customer.getId());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void deleteById(int id) {
+        String sql = "DELETE FROM customer WHERE id=?";
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+}

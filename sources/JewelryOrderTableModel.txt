@@ -1,0 +1,93 @@
+package util;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.table.AbstractTableModel;
+
+import model.JewelryOrder;
+
+
+
+
+
+/*
+ * 參考 model與資料庫的table
+ * 定義jtable物件
+*/
+public class JewelryOrderTableModel extends AbstractTableModel{
+	//欄位標題
+	private final String[] columns = {"id", "name", "ring", "earrings","necklace","bracelet","order_date"};	
+	
+    private List<JewelryOrder> data = new ArrayList<>();  
+
+	public JewelryOrderTableModel(List<JewelryOrder> data) {
+		super();
+		this.data = data;
+	}
+	public List<JewelryOrder> getData() {
+		return data;
+	}
+	public void setData(List<JewelryOrder> data) {
+		 this.data = (data == null) ? new ArrayList<>() : new ArrayList<>(data);
+	        fireTableDataChanged();
+	}
+	
+	 public JewelryOrder getRow(int rowIndex) {
+	        if (rowIndex < 0 || rowIndex >= data.size()) return null;
+	        return data.get(rowIndex);
+	    }
+
+
+	public String[] getColumns() {
+		return columns;
+	}
+
+
+
+	@Override
+    public int getRowCount() {
+        return data.size();
+    }
+
+    @Override
+    public int getColumnCount() {
+        return columns.length;
+    }
+
+    @Override
+    public String getColumnName(int column) {
+        return columns[column];
+    }
+
+    @Override//欄位類型-->參考 model
+    public Class<?> getColumnClass(int columnIndex) {
+        switch (columnIndex) {
+            case 0: return Integer.class;
+            case 1: return String.class;
+            case 2: return Integer.class;
+            case 3: return Integer.class;
+            case 4: return Integer.class;
+            case 5: return Integer.class;
+            case 6: return String.class;
+            
+            default: return Object.class;
+        }
+    }
+
+    @Override//定義欄位的值
+    public Object getValueAt(int rowIndex, int columnIndex) {
+    	JewelryOrder j = data.get(rowIndex);
+        switch (columnIndex) {
+            case 0: return j.getId();
+            case 1: return j.getName();
+            case 2: return j.getRing();
+            case 3: return j.getEarrings();
+            case 4: return j.getNecklace();
+            case 5: return j.getBracelet();
+            case 6: return j.getOrder_date();
+            
+            default: return null;
+        }
+    }
+}

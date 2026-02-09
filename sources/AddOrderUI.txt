@@ -1,0 +1,260 @@
+package controller;
+
+import java.awt.*;
+import java.awt.event.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import javax.swing.*;
+import javax.swing.border.LineBorder;
+import model.JewelryOrder;
+import dao.ProductDAOImpl; // 引入 DAO 檢查庫存
+import util.Tool;
+
+public class AddOrderUI extends JFrame {
+
+    private static final long serialVersionUID = 1L;
+    private JPanel contentPane;
+    private JTextField name, ring, earrings, necklace, bracelet, order_date;
+    private JLabel lblTime;
+    private JLabel lblTotal; 
+
+    // 品牌視覺定義
+    private final Color BRAND_PINK = new Color(230, 128, 128);
+    private final Color GOLD_BORDER = new Color(212, 175, 55);
+    private final Color PANEL_WHITE = new Color(255, 255, 255, 200);
+
+    // 商品單價定義 (與 ConfirmUI 同步)
+    private final int PRICE_RING = 15000;
+    private final int PRICE_EARRINGS = 30000;
+    private final int PRICE_NECKLACE = 25000;
+    private final int PRICE_BRACELET = 20000;
+
+    public static void main(String[] args) {
+        EventQueue.invokeLater(() -> {
+            try {
+                AddOrderUI frame = new AddOrderUI();
+                frame.setVisible(true);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    public AddOrderUI() {
+        setTitle("Fine Jewellery - Boutique Selection");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setBounds(100, 100, 1050, 750);
+        
+        JLayeredPane lp = new JLayeredPane();
+        lp.setLayout(null);
+        setContentPane(lp);
+
+        // --- 1. 頂部標題與廣告語 ---
+        JLabel lblTitle1 = new JLabel("SELECT THE BEST GIFT");
+        lblTitle1.setFont(new Font("Bell MT", Font.BOLD | Font.ITALIC, 32));
+        lblTitle1.setForeground(new Color(60, 60, 60));
+        lblTitle1.setBounds(191, 95, 500, 45);
+        lp.add(lblTitle1, JLayeredPane.PALETTE_LAYER);
+
+        JLabel lblTitle2 = new JLabel("For Your Special Someone...");
+        lblTitle2.setFont(new Font("Bell MT", Font.ITALIC, 22));
+        lblTitle2.setForeground(BRAND_PINK);
+        lblTitle2.setBounds(221, 140, 400, 30);
+        lp.add(lblTitle2, JLayeredPane.PALETTE_LAYER);
+
+        // --- 2. 產品展示區 ---
+        String[] itemNames = { "Ring", "Earrings", "Necklace", "Bracelet" };
+        String[] displayNames = { "Diamond Ring", "Diamond Earrings", "Gold Necklace", "Gold Bracelet" };
+        int[] itemPrices = { PRICE_RING, PRICE_EARRINGS, PRICE_NECKLACE, PRICE_BRACELET };
+        JTextField[] fields = new JTextField[4];
+        
+        ProductDAOImpl productDao = new ProductDAOImpl();
+
+        for (int i = 0; i < 4; i++) {
+            JPanel p = new JPanel(null);
+            p.setBackground(PANEL_WHITE);
+            p.setBounds(40 + (i * 245), 250, 225, 320);
+            lp.add(p, JLayeredPane.PALETTE_LAYER);
+
+            // 產品圖片
+            JLabel icon = new JLabel();
+            icon.setHorizontalAlignment(SwingConstants.CENTER);
+            icon.setIcon(new ImageIcon(new ImageIcon("resources/Product" + (i + 1) + ".jpg")
+                .getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH)));
+            icon.setBounds(10, 15, 205, 140); 
+            p.add(icon);
+
+            // 產品名稱
+            JLabel info = new JLabel(displayNames[i], SwingConstants.CENTER);
+            info.setFont(new Font("Bell MT", Font.BOLD, 18));
+            info.setBounds(0, 160, 225, 25); 
+            p.add(info);
+
+            // 顯示單價
+            JLabel priceInfo = new JLabel("$" + String.format("%,d", itemPrices[i]), SwingConstants.CENTER);
+            priceInfo.setFont(new Font("Bell MT", Font.ITALIC, 18));
+            priceInfo.setForeground(Color.BLACK);
+            priceInfo.setBounds(0, 185, 225, 25);
+            p.add(priceInfo);
+
+            // --- 庫存狀態顯示 ---
+            int stock = productDao.getStockByName(itemNames[i]);
+            JLabel lblStock = new JLabel("Stock: " + (stock > 0 ? stock : "Out of Stock"), SwingConstants.CENTER);
+            lblStock.setFont(new Font("Arial", Font.PLAIN, 12));
+            lblStock.setForeground(stock > 0 ? Color.DARK_GRAY : Color.RED);
+            lblStock.setBounds(0, 210, 225, 20);
+            p.add(lblStock);
+
+            // 數量顯示
+            JTextField qty = new JTextField(stock > 0 ? "0" : "X");
+            qty.setFont(new Font("Arial", Font.BOLD, 16));
+            qty.setHorizontalAlignment(JTextField.CENTER);
+            qty.setEditable(false);
+            qty.setBackground(Color.WHITE);
+            qty.setBounds(85, 240, 55, 35);
+            p.add(qty);
+            fields[i] = qty;
+
+            JButton pBtn = new JButton("+");
+            styleQtyBtn(pBtn);
+            pBtn.setBounds(145, 240, 45, 35);
+            
+            // 判斷是否斷貨
+            if (stock <= 0) {
+                pBtn.setEnabled(false);
+            }
+
+            final int currentStock = stock;
+            pBtn.addActionListener(e -> {
+                int v = Integer.parseInt(qty.getText());
+                if (v < currentStock) {
+                    qty.setText(String.valueOf(v + 1));
+                    calculateTotal();
+                } else {
+                    JOptionPane.showMessageDialog(null, "Cannot exceed available stock (" + currentStock + ").");
+                }
+            });
+            p.add(pBtn);
+
+            JButton mBtn = new JButton("-");
+            styleQtyBtn(mBtn);
+            mBtn.setBounds(35, 240, 45, 35);
+            mBtn.addActionListener(e -> {
+                if (qty.getText().equals("X")) return;
+                int v = Integer.parseInt(qty.getText());
+                if(v > 0) {
+                    qty.setText(String.valueOf(v - 1));
+                    calculateTotal();
+                }
+            });
+            p.add(mBtn);
+        }
+
+        ring = fields[0]; earrings = fields[1]; necklace = fields[2]; bracelet = fields[3];
+
+        // --- 3. 底部結帳面板 ---
+        JPanel btmPanel = new JPanel(null);
+        btmPanel.setBackground(BRAND_PINK);
+        btmPanel.setBounds(0, 580, 1050, 135);
+        lp.add(btmPanel, JLayeredPane.MODAL_LAYER);
+
+        JLabel lblName = new JLabel("CLIENT NAME:");
+        lblName.setForeground(Color.BLACK);
+        lblName.setFont(new Font("Bell MT", Font.BOLD, 16));
+        lblName.setBounds(50, 30, 150, 30);
+        btmPanel.add(lblName);
+
+        name = new JTextField();
+        name.setFont(new Font("Microsoft JhengHei", Font.BOLD, 16));
+        name.setBounds(180, 30, 200, 30);
+        btmPanel.add(name);
+
+        lblTotal = new JLabel("TOTAL: $0");
+        lblTotal.setForeground(Color.BLACK);
+        lblTotal.setFont(new Font("Bell MT", Font.BOLD, 26));
+        lblTotal.setBounds(450, 25, 300, 40);
+        btmPanel.add(lblTotal);
+
+        lblTime = new JLabel();
+        lblTime.setForeground(Color.BLACK);
+        lblTime.setFont(new Font("Consolas", Font.PLAIN, 18));
+        lblTime.setBounds(50, 75, 400, 30);
+        btmPanel.add(lblTime);
+        new Timer(1000, e -> lblTime.setText(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))).start();
+
+        JButton btnConfirm = new JButton("PLACE ORDER");
+        btnConfirm.setFont(new Font("Bell MT", Font.BOLD, 18));
+        btnConfirm.setBackground(Color.BLACK);
+        btnConfirm.setForeground(Color.WHITE);
+        btnConfirm.setFocusPainted(false);
+        btnConfirm.setBorder(new LineBorder(GOLD_BORDER, 2));
+        btnConfirm.setBounds(780, 40, 200, 55);
+        btnConfirm.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btmPanel.add(btnConfirm);
+
+        order_date = new JTextField();
+        order_date.setText(LocalDateTime.now().toString());
+
+        btnConfirm.addActionListener(e -> {
+            try {
+                String Name = name.getText();
+                if(Name.isEmpty()) {
+                    JOptionPane.showMessageDialog(null, "Please enter client name.");
+                    return;
+                }
+                
+                // 處理可能為 "X" 的情況
+                int R = ring.getText().equals("X") ? 0 : Integer.parseInt(ring.getText());
+                int E = earrings.getText().equals("X") ? 0 : Integer.parseInt(earrings.getText());
+                int N = necklace.getText().equals("X") ? 0 : Integer.parseInt(necklace.getText());
+                int B = bracelet.getText().equals("X") ? 0 : Integer.parseInt(bracelet.getText());
+                
+                if(R+E+N+B == 0) {
+                    JOptionPane.showMessageDialog(null, "Please select at least one item.");
+                    return;
+                }
+
+                JewelryOrder order = new JewelryOrder(Name, R, E, N, B, order_date.getText());
+                Tool.saveObject(order, "jewelryorder");
+
+                new ConfirmUI().setVisible(true);
+                dispose();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
+
+        // --- 4. 背景圖層 ---
+        JLabel bg = new JLabel(new ImageIcon(new ImageIcon("resources/order_bg.jpg")
+            .getImage().getScaledInstance(1050, 580, Image.SCALE_SMOOTH)));
+        bg.setBounds(0, 0, 1050, 580);
+        lp.add(bg, JLayeredPane.DEFAULT_LAYER);
+
+        setLocationRelativeTo(null);
+    }
+
+    private void calculateTotal() {
+        try {
+            int r = ring.getText().equals("X") ? 0 : Integer.parseInt(ring.getText());
+            int e = earrings.getText().equals("X") ? 0 : Integer.parseInt(earrings.getText());
+            int n = necklace.getText().equals("X") ? 0 : Integer.parseInt(necklace.getText());
+            int b = bracelet.getText().equals("X") ? 0 : Integer.parseInt(bracelet.getText());
+            
+            int total = (r * PRICE_RING) + (e * PRICE_EARRINGS) + (n * PRICE_NECKLACE) + (b * PRICE_BRACELET);
+            lblTotal.setText("TOTAL: $" + String.format("%,d", total));
+        } catch (Exception ex) {
+            lblTotal.setText("TOTAL: $0");
+        }
+    }
+
+    private void styleQtyBtn(JButton btn) {
+        btn.setFont(new Font("Arial", Font.BOLD, 18));
+        btn.setBackground(Color.WHITE);
+        btn.setForeground(Color.BLACK);
+        btn.setBorder(new LineBorder(Color.LIGHT_GRAY));
+        btn.setFocusPainted(false);
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    }
+}
+
+

@@ -1,0 +1,44 @@
+package service.impl;
+
+import java.util.List;
+import dao.customer.impl.CustomerDaoImpl;
+import model.Customer;
+import service.customer.CustomerService;
+
+public class CustomerServiceImpl implements CustomerService {
+    CustomerDaoImpl customerDaoImpl = new CustomerDaoImpl();
+
+    @Override
+    public void AddCustomer(Customer customer) {
+        customerDaoImpl.add(customer);
+    }
+
+    @Override
+    public boolean updateCustomer(Customer customer) {
+        try {
+            customerDaoImpl.update(customer);
+            return true;
+        } catch (Exception e) { return false; }
+    }
+
+    @Override
+    public double calculateDiscount(Customer customer) {
+        if (customer != null && customer.isFirstOrder()) {
+            customer.setFirstOrder(false); // 取消首購資格
+            updateCustomer(customer);     // 更新資料庫
+            return 0.95;                  // 回傳 95 折
+        }
+        return 1.0; // 無折扣
+    }
+
+    @Override
+    public Customer find_customer_by_username_and_password(String username, String password) {
+        List<Customer> list = customerDaoImpl.selectByUsernameAndPassword(username, password);
+        return list.isEmpty() ? null : list.get(0);
+    }
+
+    @Override
+    public boolean find_username(String username) {
+        return !customerDaoImpl.selectByUsername(username).isEmpty();
+    }
+}

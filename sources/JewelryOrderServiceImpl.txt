@@ -1,0 +1,67 @@
+package service.impl;
+
+import java.util.List;
+
+import dao.impl.JewelryOrderDaoImpl;
+import model.JewelryOrder;
+import service.JewelryOrderService;
+
+public class JewelryOrderServiceImpl implements JewelryOrderService {
+
+    public static void main(String[] args) {
+        System.out.println(new JewelryOrderServiceImpl().findById(1));
+    }
+
+    JewelryOrderDaoImpl jewelryorderDaoImpl = new JewelryOrderDaoImpl();
+
+    @Override
+    public boolean addJewelryOrder(JewelryOrder jewelryOrder) {
+        boolean x = false;
+        if (jewelryOrder.getRing() >= 0 && jewelryOrder.getEarrings() >= 0 &&
+            jewelryOrder.getNecklace() >= 0 && jewelryOrder.getBracelet() >= 0) {
+            jewelryorderDaoImpl.add(jewelryOrder);
+            x = true;
+        }
+        return x;
+    }
+
+    @Override
+    public List<JewelryOrder> allJewelryOrder() {
+        return jewelryorderDaoImpl.selectAll();
+    }
+
+    @Override
+    public List<JewelryOrder> findById(int id) {
+        return jewelryorderDaoImpl.selectById(id);
+    }
+
+    @Override
+    public boolean updateJewelryOrder(JewelryOrder jewelryOrder) {
+        boolean x = false;
+        if (jewelryOrder.getRing() >= 0 && jewelryOrder.getEarrings() >= 0
+                && jewelryOrder.getNecklace() >= 0 && jewelryOrder.getBracelet() >= 0) {
+            jewelryorderDaoImpl.update(jewelryOrder);
+            x = true;
+        }
+        return x;
+    }
+
+    @Override
+    public boolean deleteJewelryOrderById(int id) {
+        boolean x = false;
+        if (id > 0) {
+            jewelryorderDaoImpl.deleteById(id);
+            x = true;
+        }
+        return x;
+    }
+
+    // ✅ 修正版：改回傳 List<JewelryOrder> 並連結 DAO 層查詢
+    public List<JewelryOrder> getOrderByCustomerName(String username) {
+        if (username == null || username.trim().isEmpty()) {
+            return null;
+        }
+        // 假設 DAO 已實作 selectByCustomerName(username)
+        return jewelryorderDaoImpl.selectByCustomerName(username);
+    }
+}

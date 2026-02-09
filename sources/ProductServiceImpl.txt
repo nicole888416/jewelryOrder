@@ -1,0 +1,10 @@
+package service;
+
+public class ProductServiceImpl {
+
+	public static int getStock(String string) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+}

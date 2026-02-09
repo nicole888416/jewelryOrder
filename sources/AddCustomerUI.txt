@@ -1,0 +1,143 @@
+package controller.customer;
+
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import javax.swing.border.*;
+
+import model.Customer;
+import service.customer.impl.CustomerServiceImpl;
+
+public class AddCustomerUI extends JFrame {
+
+	private static final long serialVersionUID = 1L;
+	private JPanel contentPane;
+	private JTextField customer_no;
+	private JTextField customer_name;
+	private JTextField address;
+	private JTextField username;
+	private JPasswordField password; 
+	private JTextField birthday;
+	
+	
+	private final Color BRAND_PINK = new Color(230, 128, 128); 
+	private final Color PANEL_WHITE = new Color(255, 255, 255, 200); 
+	private final Font TITLE_FONT = new Font("Bell MT", Font.BOLD | Font.ITALIC, 35);
+	private final Font LABEL_FONT = new Font("Bell MT", Font.BOLD, 15);
+
+	public static void main(String[] args) {
+		EventQueue.invokeLater(() -> {
+			try {
+				AddCustomerUI frame = new AddCustomerUI();
+				frame.setVisible(true);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
+	}
+
+	public AddCustomerUI() {
+		setTitle("Jewellery Store - Member Registration");
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setBounds(100, 100, 600, 650); 
+		
+		contentPane = new JPanel(null);
+		contentPane.setBackground(BRAND_PINK);
+		setContentPane(contentPane);
+
+		// --- 1. 標題 ---
+		JLabel lblTitle = new JLabel("Join Our Membership", SwingConstants.CENTER);
+		lblTitle.setFont(TITLE_FONT);
+		lblTitle.setBounds(50, 30, 500, 50);
+		contentPane.add(lblTitle);
+
+		// --- 2. 半透明註冊面板 ---
+		JPanel regPanel = new JPanel(null);
+		regPanel.setBackground(PANEL_WHITE);
+		regPanel.setBounds(80, 100, 430, 460);
+		contentPane.add(regPanel);
+
+		// 欄位配置輔助方法 (定義在下方)
+		addStyledRow(regPanel, "Customer ID :", customer_no = new JTextField(), 40);
+		addStyledRow(regPanel, "Full Name :", customer_name = new JTextField(), 90);
+		addStyledRow(regPanel, "Address :", address = new JTextField(), 140);
+		addStyledRow(regPanel, "Username :", username = new JTextField(), 190);
+		
+		// 密碼欄位特殊處理 (JPasswordField)
+		JLabel lblPass = new JLabel("Password :");
+		lblPass.setFont(LABEL_FONT);
+		lblPass.setBounds(40, 240, 120, 25);
+		regPanel.add(lblPass);
+		password = new JPasswordField();
+		password.setBounds(170, 240, 210, 25);
+		regPanel.add(password);
+
+		addStyledRow(regPanel, "Birthday :", birthday = new JTextField(), 290);
+		
+		JLabel lblFormat = new JLabel("(Format: yyyy-MM-dd)");
+		lblFormat.setFont(new Font("Bell MT", Font.ITALIC, 12));
+		lblFormat.setForeground(Color.GRAY);
+		lblFormat.setBounds(170, 315, 210, 20);
+		regPanel.add(lblFormat);
+
+		// --- 3. 按鈕區域 ---
+		
+		// 確定註冊按鈕 
+		JButton btnConfirm = new JButton("CONFIRM");
+		btnConfirm.setFont(new Font("Bell MT", Font.BOLD, 16));
+		btnConfirm.setBackground(Color.BLACK);
+		btnConfirm.setForeground(Color.WHITE);
+		btnConfirm.setBounds(40, 370, 165, 40);
+		regPanel.add(btnConfirm);
+
+		// 返回登入按鈕 
+		JButton btnBack = new JButton("BACK");
+		btnBack.setFont(new Font("Bell MT", Font.BOLD, 16));
+		btnBack.setBackground(Color.WHITE);
+		btnBack.setBounds(215, 370, 165, 40);
+		regPanel.add(btnBack);
+
+		// --- 4. 邏輯處理 ---
+		CustomerServiceImpl csi = new CustomerServiceImpl();
+
+		btnConfirm.addActionListener(e -> {
+			String Username = username.getText();
+			if(csi.find_username(Username)) {
+				new AddCustomerErrorUI().setVisible(true);
+				dispose();
+			} else {
+				Customer customer = new Customer(
+					customer_no.getText(),
+					customer_name.getText(),
+					address.getText(),
+					Username,
+					new String(password.getPassword()),
+					birthday.getText()
+				);
+				csi.AddCustomer(customer);
+				new AddCustomerSuccessUI().setVisible(true);
+				dispose();
+			}
+		});
+
+		btnBack.addActionListener(e -> {
+			new LoginUI().setVisible(true);
+			dispose();
+		});
+
+		setLocationRelativeTo(null);
+	}
+
+	/**
+	 * 輔助方法：快速建立風格一致的標籤與輸入框
+	 */
+	private void addStyledRow(JPanel panel, String labelText, JTextField field, int y) {
+		JLabel lbl = new JLabel(labelText);
+		lbl.setFont(LABEL_FONT);
+		lbl.setBounds(40, y, 120, 25);
+		panel.add(lbl);
+
+		field.setBounds(170, y, 210, 25);
+		panel.add(field);
+	}
+}

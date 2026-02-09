@@ -1,0 +1,27 @@
+package service;
+
+import java.util.List;
+
+import model.JewelryOrder;
+
+public interface JewelryOrderService {
+	//create
+	boolean addJewelryOrder(JewelryOrder jewelryOrder);
+	
+	//read
+	List<JewelryOrder> allJewelryOrder();
+	List<JewelryOrder> findById(int id);
+	
+	//update
+	boolean updateJewelryOrder(JewelryOrder jewelryOrder);
+	
+	//delete
+	
+	boolean deleteJewelryOrderById(int id);
+
+	static List<JewelryOrder> getOrderByCustomerName(String username) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+}

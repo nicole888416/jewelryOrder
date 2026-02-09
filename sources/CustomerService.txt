@@ -1,0 +1,13 @@
+package service;
+
+import model.Customer;
+
+public interface CustomerService {
+	
+	void AddCustomer(Customer customer);
+    Customer find_customer_by_username_and_password(String username, String password);
+    boolean find_username(String username);
+    
+    boolean updateCustomer(Customer customer); // 更新會員資料
+    double calculateDiscount(Customer customer); // 新增計算折扣功能
+}

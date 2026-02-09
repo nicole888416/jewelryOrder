@@ -1,0 +1,23 @@
+package dao;
+
+import java.util.List;
+
+import model.JewelryOrder;
+
+public interface JewelryOrderDao {
+	//create
+	void add(JewelryOrder jewelryOrder);
+	
+	//read
+	List<JewelryOrder> selectAll();
+	List<JewelryOrder> selectById(int id);
+	
+	//update
+	void update(JewelryOrder jewelryOrder);
+	
+	//delete
+	void deleteById(int id);
+
+	List<JewelryOrder> selectByCustomerName(String username);
+
+}

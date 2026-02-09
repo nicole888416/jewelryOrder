@@ -1,0 +1,89 @@
+package controller.customer;
+
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+
+public class AddCustomerSuccessUI extends JFrame {
+
+	private static final long serialVersionUID = 1L;
+	private JPanel contentPane;
+	
+	
+	private final Color BRAND_PINK = new Color(230, 128, 128);
+	private final Color PANEL_WHITE = new Color(255, 255, 255, 200);
+	private final Font BELL_FONT_TITLE = new Font("Bell MT", Font.BOLD | Font.ITALIC, 28);
+	private final Font BELL_FONT_BODY = new Font("Bell MT", Font.PLAIN, 16);
+
+	public static void main(String[] args) {
+		EventQueue.invokeLater(() -> {
+			try {
+				AddCustomerSuccessUI frame = new AddCustomerSuccessUI();
+				frame.setVisible(true);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
+	}
+
+	public AddCustomerSuccessUI() {
+		setTitle("Jewellery Store - Registration Successful");
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setBounds(100, 100, 650, 400); 
+		
+		contentPane = new JPanel(null);
+		contentPane.setBackground(BRAND_PINK);
+		setContentPane(contentPane);
+
+		// --- 1. 左側：廣告圖/裝飾圖區域 (Ad Area) ---
+		
+		JPanel adPanel = new JPanel(null);
+		adPanel.setBounds(0, 0, 250, 400);
+		adPanel.setBackground(new Color(0, 0, 0, 30)); 
+		contentPane.add(adPanel);
+
+		JLabel lblAdImage = new JLabel("AD IMAGE"); 
+		lblAdImage.setForeground(Color.WHITE);
+		lblAdImage.setHorizontalAlignment(SwingConstants.CENTER);
+		lblAdImage.setBounds(0, 0, 250, 400);
+		//珠寶產品圖 
+		lblAdImage.setIcon(new ImageIcon(new ImageIcon("resources/Success_Ad.jpg").getImage().getScaledInstance(250, 400, Image.SCALE_SMOOTH)));
+		adPanel.add(lblAdImage);
+
+		// --- 2. 右側：成功訊息面板 ---
+		JPanel infoPanel = new JPanel(null);
+		infoPanel.setBackground(PANEL_WHITE);
+		infoPanel.setBounds(280, 50, 320, 260);
+		contentPane.add(infoPanel);
+
+		JLabel lblSuccess = new JLabel("Welcome!");
+		lblSuccess.setHorizontalAlignment(SwingConstants.CENTER);
+		lblSuccess.setFont(BELL_FONT_TITLE);
+		lblSuccess.setBounds(10, 40, 300, 40);
+		infoPanel.add(lblSuccess);
+
+		JLabel lblMsg = new JLabel("<html><center>Your membership has been<br>successfully created.</center></html>");
+		lblMsg.setHorizontalAlignment(SwingConstants.CENTER);
+		lblMsg.setFont(BELL_FONT_BODY);
+		lblMsg.setBounds(10, 100, 300, 50);
+		infoPanel.add(lblMsg);
+
+		// 重新登入按鈕 
+		JButton btnReLogin = new JButton("LOGIN NOW");
+		btnReLogin.setFont(new Font("Bell MT", Font.BOLD, 14));
+		btnReLogin.setBackground(Color.BLACK);
+		btnReLogin.setForeground(Color.WHITE);
+		btnReLogin.setFocusPainted(false);
+		btnReLogin.setBounds(70, 180, 180, 40);
+		infoPanel.add(btnReLogin);
+
+		// --- 3. 邏輯處理 ---
+		btnReLogin.addActionListener(e -> {
+			new LoginUI().setVisible(true);
+			dispose();
+		});
+
+		setLocationRelativeTo(null); // 視窗置中
+	}
+}

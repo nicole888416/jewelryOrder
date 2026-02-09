@@ -1,0 +1,119 @@
+package controller.customer;
+
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import javax.swing.border.LineBorder;
+
+import controller.AddOrderUI;
+import model.Customer;
+import util.Tool;
+
+public class LoginSuccessUI extends JFrame {
+
+	private static final long serialVersionUID = 1L;
+	private JPanel contentPane;
+	
+	
+	private final Color BRAND_PINK = new Color(230, 128, 128);
+	private final Color GOLD_BORDER = new Color(255, 255, 255);
+	private final Color SOFT_WHITE = new Color(255, 255, 255, 210);
+
+	public static void main(String[] args) {
+		EventQueue.invokeLater(() -> {
+			try {
+				LoginSuccessUI frame = new LoginSuccessUI();
+				frame.setVisible(true);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
+	}
+
+	public LoginSuccessUI() {
+		setTitle("Jewellery Store - VIP Lounge");
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setBounds(100, 100, 800, 550); 
+		
+		JLayeredPane lp = new JLayeredPane();
+		lp.setLayout(null);
+		setContentPane(lp);
+
+		
+		JPanel topAdPanel = new JPanel(null);
+		topAdPanel.setBackground(new Color(230, 128, 128));
+		topAdPanel.setBounds(0, 0, 800, 80);
+		lp.add(topAdPanel, JLayeredPane.PALETTE_LAYER);
+
+		JLabel lblAdText = new JLabel("Limited Edition: The Aurora Diamond Collection");
+		lblAdText.setForeground(Color.WHITE);
+		lblAdText.setFont(new Font("Bell MT", Font.BOLD | Font.ITALIC, 20));
+		lblAdText.setHorizontalAlignment(SwingConstants.CENTER);
+		lblAdText.setBounds(0, 25, 800, 30);
+		topAdPanel.add(lblAdText);
+
+		// --- 2. VIP 歡迎面板 (精緻置中) ---
+		JPanel welcomePanel = new JPanel(null);
+		welcomePanel.setBackground(SOFT_WHITE);
+		welcomePanel.setBounds(200, 150, 400, 300);
+		welcomePanel.setBorder(new LineBorder(GOLD_BORDER, 1)); 
+		lp.add(welcomePanel, JLayeredPane.MODAL_LAYER);
+
+		JLabel lblGreeting = new JLabel("WELCOME BACK");
+		lblGreeting.setHorizontalAlignment(SwingConstants.CENTER);
+		lblGreeting.setFont(new Font("Bell MT", Font.BOLD, 28));
+		lblGreeting.setBounds(0, 40, 400, 40);
+		welcomePanel.add(lblGreeting);
+
+		// 會員名稱
+		JLabel custom = new JLabel("");
+		custom.setHorizontalAlignment(SwingConstants.CENTER);
+		custom.setFont(new Font("Microsoft JhengHei", Font.BOLD, 22));
+		custom.setForeground(new Color(60, 60, 60));
+		custom.setBounds(0, 95, 400, 35);
+		welcomePanel.add(custom);
+		
+		JLabel lblVipHint = new JLabel("- Your Private Curator Awaits -");
+		lblVipHint.setHorizontalAlignment(SwingConstants.CENTER);
+		lblVipHint.setFont(new Font("Bell MT", Font.ITALIC, 14));
+		lblVipHint.setForeground(BRAND_PINK);
+		lblVipHint.setBounds(0, 140, 400, 20);
+		welcomePanel.add(lblVipHint);
+
+		// 進入按鈕 
+		JButton btnOrder = new JButton("EXPLORE COLLECTION");
+		btnOrder.setFont(new Font("Bell MT", Font.BOLD, 15));
+		btnOrder.setBackground(Color.BLACK);
+		btnOrder.setForeground(Color.WHITE);
+		btnOrder.setFocusPainted(false);
+		btnOrder.setBorder(new LineBorder(GOLD_BORDER, 1));
+		btnOrder.setBounds(100, 200, 200, 45);
+		btnOrder.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		welcomePanel.add(btnOrder);
+
+		// --- 3. 邏輯處理 ---
+		Object o = Tool.readObject("customer"); 
+		if (o != null) {
+			Customer customer = (Customer) o;
+			custom.setText(customer.getCustomer_name() + " 尊榮貴賓");
+		} else {
+			custom.setText("尊榮貴賓 您好");
+		}
+
+		// 按鈕監聽
+		btnOrder.addActionListener(e -> {
+			new AddOrderUI().setVisible(true);
+			dispose();
+		});
+
+		// --- 4. 背景大圖 ---
+		JLabel bg = new JLabel();
+		// 珠寶店鋪圖
+		ImageIcon bgIcon = new ImageIcon(new ImageIcon("resources/welcome_bg.png").getImage().getScaledInstance(800, 550, Image.SCALE_SMOOTH));
+		bg.setIcon(bgIcon);
+		bg.setBounds(0, 0, 800, 550);
+		lp.add(bg, JLayeredPane.DEFAULT_LAYER);
+
+		setLocationRelativeTo(null);
+	}
+}

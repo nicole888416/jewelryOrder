@@ -1,0 +1,175 @@
+package controller;
+
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.print.PrinterException;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.*;
+import javax.swing.border.LineBorder;
+import javax.swing.table.*;
+
+import controller.customer.LoginUI;
+import model.Customer;
+import model.JewelryOrder;
+import service.impl.JewelryOrderServiceImpl;
+import util.JewelryOrderTableModel;
+import util.Tool;
+
+public class FinishedUI extends JFrame {
+
+    private static final long serialVersionUID = 1L;
+    private JPanel contentPane;
+    private JTable table;
+    private JewelryOrderTableModel tableModel;
+
+    public static void main(String[] args) {
+        EventQueue.invokeLater(() -> {
+            try {
+                FinishedUI frame = new FinishedUI();
+                frame.setVisible(true);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    public FinishedUI() {
+        setTitle("Jewellery Store - Order Success");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setBounds(100, 100, 1000, 552);
+
+        contentPane = new JPanel(null);
+        contentPane.setBackground(new Color(230, 128, 128));
+        setContentPane(contentPane);
+
+        JLabel lblAd = new JLabel();
+        lblAd.setIcon(new ImageIcon(new ImageIcon("resources/finished_ad.jpg").getImage().getScaledInstance(450, 552, Image.SCALE_SMOOTH)));
+        lblAd.setBounds(0, 0, 450, 552);
+        contentPane.add(lblAd);
+
+        JPanel mainPanel = new JPanel(null);
+        mainPanel.setBackground(new Color(255, 255, 255, 180));
+        mainPanel.setBounds(480, 40, 480, 430);
+        contentPane.add(mainPanel);
+
+        JLabel lblMsg = new JLabel("THANK YOU", SwingConstants.CENTER);
+        lblMsg.setForeground(new Color(139, 0, 0));
+        lblMsg.setFont(new Font("Bell MT", Font.BOLD, 36));
+        lblMsg.setBounds(0, 20, 480, 45);
+        mainPanel.add(lblMsg);
+
+        JLabel lblSubMsg = new JLabel("FOR YOUR LUXURY PURCHASE", SwingConstants.CENTER);
+        lblSubMsg.setFont(new Font("Bell MT", Font.ITALIC, 16));
+        lblSubMsg.setBounds(0, 60, 480, 25);
+        mainPanel.add(lblSubMsg);
+
+        JewelryOrder jewelryorder = (JewelryOrder) Tool.readObject("jewelryorder");
+        Customer customer = (Customer) Tool.readObject("customer");
+        Integer finalSum = (Integer) Tool.readObject("finalSum");
+        Boolean isFirstPurchase = (Boolean) Tool.readObject("isFirstPurchase");
+
+        if (jewelryorder != null && customer != null && finalSum != null) {
+            JScrollPane scrollPane = new JScrollPane();
+            scrollPane.setBounds(30, 110, 420, 100);
+            scrollPane.getViewport().setBackground(Color.WHITE);
+            scrollPane.setBorder(new LineBorder(new Color(230, 128, 128)));
+            mainPanel.add(scrollPane);
+
+            List<JewelryOrder> list = new ArrayList<>();
+            list.add(jewelryorder);
+            tableModel = new JewelryOrderTableModel(list);
+            table = new JTable(tableModel);
+            styleTable(table);
+            scrollPane.setViewportView(table);
+
+            JLabel lblTotal = new JLabel("Final Amount: NT$ " + String.format("%,d", finalSum));
+            lblTotal.setFont(new Font("Bell MT", Font.BOLD, 24));
+            lblTotal.setHorizontalAlignment(SwingConstants.CENTER);
+            lblTotal.setBounds(0, 230, 480, 40);
+            mainPanel.add(lblTotal);
+
+            if (Boolean.TRUE.equals(isFirstPurchase)) {
+                JLabel lblPromo = new JLabel("✨ First Purchase 5% OFF Applied", SwingConstants.CENTER);
+                lblPromo.setForeground(new Color(178, 34, 34));
+                lblPromo.setFont(new Font("Bell MT", Font.ITALIC, 14));
+                lblPromo.setBounds(0, 265, 480, 20);
+                mainPanel.add(lblPromo);
+            }
+        } else {
+            JLabel lblError = new JLabel("<html><center>No order data found.<br>Please reorder.</center></html>", SwingConstants.CENTER);
+            lblError.setBounds(50, 150, 380, 60);
+            mainPanel.add(lblError);
+        }
+
+        JButton btnPrint = new JButton("PRINT INVOICE");
+        styleBtn(btnPrint, Color.BLACK, Color.WHITE);
+        btnPrint.setBounds(40, 310, 137, 40);
+        mainPanel.add(btnPrint);
+        btnPrint.addActionListener(e -> {
+            try {
+                if (table != null)
+                    table.print(JTable.PrintMode.FIT_WIDTH,
+                            new java.text.MessageFormat("Jewellery Store Receipt"),
+                            new java.text.MessageFormat("- Page {0} -"));
+            } catch (PrinterException pe) {
+                pe.printStackTrace();
+            }
+        });
+
+        JButton btnReorder = new JButton("NEW ORDER");
+        styleBtn(btnReorder, Color.WHITE, Color.BLACK);
+        btnReorder.setBounds(187, 310, 128, 40);
+        mainPanel.add(btnReorder);
+        btnReorder.addActionListener(e -> {
+            new AddOrderUI().setVisible(true);
+            dispose();
+        });
+
+        JButton btnExit = new JButton("LOGOUT");
+        styleBtn(btnExit, new Color(100, 100, 100), Color.WHITE);
+        btnExit.setBounds(325, 310, 128, 40);
+        mainPanel.add(btnExit);
+        btnExit.addActionListener(e -> {
+            new controller.customer.LoginUI().setVisible(true);
+            dispose();
+        });
+
+        JLabel lblFooter = new JLabel("Your elegance is our priority.", SwingConstants.CENTER);
+        lblFooter.setFont(new Font("Bell MT", Font.ITALIC, 12));
+        lblFooter.setBounds(0, 385, 480, 20);
+        mainPanel.add(lblFooter);
+
+        setLocationRelativeTo(null);
+    }
+
+    private void styleBtn(JButton b, Color bg, Color fg) {
+        b.setFont(new Font("Bell MT", Font.BOLD, 12));
+        b.setBackground(bg);
+        b.setForeground(fg);
+        b.setFocusPainted(false);
+    }
+
+    private void styleTable(JTable table) {
+        table.setRowHeight(30);
+        table.setFont(new Font("Microsoft JhengHei", Font.PLAIN, 12));
+        JTableHeader header = table.getTableHeader();
+        header.setBackground(Color.BLACK);
+        header.setForeground(Color.WHITE);
+        header.setFont(new Font("Microsoft JhengHei", Font.BOLD, 12));
+
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+        for (int i = 0; i < table.getColumnCount(); i++) {
+            table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
+
+        table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        int colCount = table.getColumnCount();
+        for (int i = 0; i < colCount; i++) {
+            TableColumn column = table.getColumnModel().getColumn(i);
+            if (i == colCount - 1) column.setPreferredWidth(180);
+            else column.setPreferredWidth(50);
+        }
+    }
+}

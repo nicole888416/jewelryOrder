@@ -1,0 +1,155 @@
+package dao.impl;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import dao.JewelryOrderDao;
+import model.JewelryOrder;
+import util.Tool;
+
+public class JewelryOrderDaoImpl implements JewelryOrderDao {
+
+    public static void main(String[] args) {
+        new JewelryOrderDaoImpl().add(new JewelryOrder("aaa", 2, 2, 2, 2, ""));
+    }
+
+    Connection conn = Tool.getDb();
+
+    @Override
+    public void add(JewelryOrder jewelryOrder) {
+        String sql = "INSERT INTO jewelryorder(name, ring, earrings, necklace, bracelet, order_date) VALUES (?, ?, ?, ?, ?, ?)";
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, jewelryOrder.getName());
+            ps.setInt(2, jewelryOrder.getRing());
+            ps.setInt(3, jewelryOrder.getEarrings());
+            ps.setInt(4, jewelryOrder.getNecklace());
+            ps.setInt(5, jewelryOrder.getBracelet());
+            ps.setString(6, jewelryOrder.getOrder_date());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public List<JewelryOrder> selectAll() {
+        String sql = "SELECT * FROM jewelryorder";
+        List<JewelryOrder> l = new ArrayList<>();
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                JewelryOrder jewelryorder = new JewelryOrder();
+                jewelryorder.setId(rs.getInt("id"));
+                jewelryorder.setName(rs.getString("name"));
+                jewelryorder.setRing(rs.getInt("ring"));
+                jewelryorder.setEarrings(rs.getInt("earrings"));
+                jewelryorder.setNecklace(rs.getInt("necklace"));
+                jewelryorder.setBracelet(rs.getInt("bracelet"));
+                jewelryorder.setOrder_date(rs.getString("order_date"));
+                l.add(jewelryorder);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return l;
+    }
+
+    @Override
+    public List<JewelryOrder> selectById(int id) {
+        String sql = "SELECT * FROM jewelryorder WHERE id=?";
+        List<JewelryOrder> l = new ArrayList<>();
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                JewelryOrder j = new JewelryOrder();
+                j.setId(rs.getInt("id"));
+                j.setName(rs.getString("name"));
+                j.setRing(rs.getInt("ring"));
+                j.setEarrings(rs.getInt("earrings"));
+                j.setNecklace(rs.getInt("necklace"));
+                j.setBracelet(rs.getInt("bracelet"));
+                j.setOrder_date(rs.getString("order_date"));
+                l.add(j);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return l;
+    }
+
+    @Override
+    public void update(JewelryOrder jewelryOrder) {
+        // ✅ 修正逗號缺漏的 SQL 語法
+        String sql = "UPDATE jewelryorder SET name=?, ring=?, earrings=?, necklace=?, bracelet=?, order_date=? WHERE id=?";
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, jewelryOrder.getName());
+            ps.setInt(2, jewelryOrder.getRing());
+            ps.setInt(3, jewelryOrder.getEarrings());
+            ps.setInt(4, jewelryOrder.getNecklace());
+            ps.setInt(5, jewelryOrder.getBracelet());
+            ps.setString(6, jewelryOrder.getOrder_date());
+            ps.setInt(7, jewelryOrder.getId());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void deleteById(int id) {
+        String sql = "DELETE FROM jewelryorder WHERE id=?";
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    
+    @Override
+    public List<JewelryOrder> selectByCustomerName(String username) {
+        String sql = "SELECT * FROM jewelryorder WHERE name = ?";
+        List<JewelryOrder> list = new ArrayList<>();
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, username);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                JewelryOrder j = new JewelryOrder();
+                j.setId(rs.getInt("id"));
+                j.setName(rs.getString("name"));
+                j.setRing(rs.getInt("ring"));
+                j.setEarrings(rs.getInt("earrings"));
+                j.setNecklace(rs.getInt("necklace"));
+                j.setBracelet(rs.getInt("bracelet"));
+                j.setOrder_date(rs.getString("order_date"));
+                list.add(j);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+}

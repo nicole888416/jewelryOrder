@@ -1,0 +1,113 @@
+package controller.customer;
+
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import javax.swing.border.*;
+
+public class LoginErrorUI extends JFrame {
+
+	private static final long serialVersionUID = 1L;
+	private JPanel contentPane;
+	
+	
+	private final Color BRAND_PINK = new Color(230, 128, 128);
+	private final Color GOLD_BORDER = new Color(212, 175, 55);
+	private final Color PANEL_WHITE = new Color(255, 255, 255, 200);
+
+	public static void main(String[] args) {
+		EventQueue.invokeLater(() -> {
+			try {
+				LoginErrorUI frame = new LoginErrorUI();
+				frame.setVisible(true);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
+	}
+
+	public LoginErrorUI() {
+		setTitle("Jewellery Store - Authentication Notice");
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setBounds(100, 100, 750, 480);
+		
+		contentPane = new JPanel(null);
+		contentPane.setBackground(BRAND_PINK); // 統一背景色
+		setContentPane(contentPane);
+
+		// --- 1. 左側廣告區 (垂直視覺) ---
+		JPanel adPanel = new JPanel(null);
+		adPanel.setBounds(0, 0, 320, 480);
+		adPanel.setBackground(new Color(20, 20, 20));
+		contentPane.add(adPanel);
+
+		JLabel lblAd = new JLabel();
+		// 珠寶飾品圖
+		lblAd.setIcon(new ImageIcon(new ImageIcon("resources/error_ad.jpg").getImage().getScaledInstance(320, 480, Image.SCALE_SMOOTH)));
+		lblAd.setBounds(0, 0, 320, 480);
+		adPanel.add(lblAd);
+
+		// --- 2. 右側提醒面板 (半透明白) ---
+		JPanel msgPanel = new JPanel(null);
+		msgPanel.setBackground(PANEL_WHITE);
+		msgPanel.setBounds(360, 50, 340, 340);
+		//msgPanel.setBorder(new LineBorder(GOLD_BORDER, 1));
+		contentPane.add(msgPanel);
+
+		JLabel lblTitle = new JLabel("ACCESS DENIED");
+		lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
+		lblTitle.setFont(new Font("Bell MT", Font.BOLD, 26));
+		lblTitle.setBounds(10, 40, 320, 40);
+		msgPanel.add(lblTitle);
+
+		JLabel lblSubMsg = new JLabel("<html><center>The credentials provided do not match<br>our prestigious member records.</center></html>");
+		lblSubMsg.setHorizontalAlignment(SwingConstants.CENTER);
+		lblSubMsg.setFont(new Font("Bell MT", Font.ITALIC, 14));
+		lblSubMsg.setForeground(new Color(100, 100, 100));
+		lblSubMsg.setBounds(10, 90, 320, 50);
+		msgPanel.add(lblSubMsg);
+
+		// --- 3. 操作按鈕 ---
+		
+		// 註冊按鈕 
+		JButton btnRegister = new JButton("BECOME A MEMBER");
+		btnRegister.setFont(new Font("Bell MT", Font.BOLD, 14));
+		btnRegister.setBackground(Color.BLACK);
+		btnRegister.setForeground(Color.WHITE);
+		btnRegister.setFocusPainted(false);
+		//btnRegister.setBorder(new LineBorder(GOLD_BORDER, 1));
+		btnRegister.setBounds(60, 170, 220, 45);
+		btnRegister.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		msgPanel.add(btnRegister);
+
+		// 返回登入按鈕 
+		JButton btnBack = new JButton("RETURN TO LOGIN");
+		btnBack.setFont(new Font("Bell MT", Font.BOLD, 13));
+		btnBack.setContentAreaFilled(false);
+		btnBack.setBorder(new LineBorder(Color.BLACK, 1));
+		btnBack.setBounds(60, 230, 220, 40);
+		btnBack.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		msgPanel.add(btnBack);
+
+		// 頁尾小字
+		JLabel lblFooter = new JLabel("Excellence in Jewellery Since 1990");
+		lblFooter.setFont(new Font("Bell MT", Font.ITALIC, 11));
+		lblFooter.setForeground(new Color(150, 150, 150));
+		lblFooter.setHorizontalAlignment(SwingConstants.CENTER);
+		lblFooter.setBounds(10, 300, 320, 20);
+		msgPanel.add(lblFooter);
+
+		// --- 4. 邏輯處理 ---
+		btnRegister.addActionListener(e -> {
+			new AddCustomerUI().setVisible(true);
+			dispose();
+		});
+
+		btnBack.addActionListener(e -> {
+			new LoginUI().setVisible(true);
+			dispose();
+		});
+
+		setLocationRelativeTo(null);
+	}
+}

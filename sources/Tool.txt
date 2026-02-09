@@ -1,0 +1,104 @@
+package util;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+public class Tool {
+
+    public static void main(String[] args) {
+        
+        // Tool.saveObject(new CustomerServiceImpl().find_customer_by_username_and_password("tea", "123"), "customer");
+        // System.out.println(Tool.readObject("customer"));
+    }
+
+    // 連線
+    public static Connection getDb() {
+        String url = "jdbc:mysql://localhost:3306/jewelryorder";
+        String user = "root";
+        String password = "1234";
+        Connection conn = null;
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            conn = DriverManager.getConnection(url, user, password);
+        } catch (ClassNotFoundException e) {
+            System.out.println("❌ MySQL Driver not found.");
+            e.printStackTrace();
+        } catch (SQLException e) {
+            System.out.println("❌ Database connection failed.");
+            e.printStackTrace();
+        }
+
+        return conn;
+    }
+
+    // 存檔 --> writeObject
+    public static void saveObject(Object object, String saveFileName) {
+        if (object == null || saveFileName == null) {
+            System.out.println("⚠ saveObject failed: object or fileName is null.");
+            return;
+        }
+
+        try {
+            String file = saveFileName.toLowerCase() + ".txt"; // 統一小寫
+            FileOutputStream fos = new FileOutputStream(file);
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+
+            oos.writeObject(object); // 存入 object
+            oos.close();
+            fos.close();
+
+            System.out.println("✅ Object saved to file: " + file);
+        } catch (FileNotFoundException e) {
+            System.out.println("❌ File not found when saving object.");
+            e.printStackTrace();
+        } catch (IOException e) {
+            System.out.println("❌ IO error when saving object.");
+            e.printStackTrace();
+        }
+    }
+
+   
+    public static void writeObject(Object object, String saveFileName) {
+        saveObject(object, saveFileName);
+    }
+
+    // 讀檔 --> readObject
+    public static Object readObject(String fileName) {
+        if (fileName == null) {
+            System.out.println("⚠ readObject failed: fileName is null.");
+            return null;
+        }
+
+        Object object = null;
+        try {
+            String file = fileName.toLowerCase() + ".txt"; // 統一小寫
+            FileInputStream fis = new FileInputStream(file);
+            ObjectInputStream ois = new ObjectInputStream(fis);
+
+            object = ois.readObject();
+
+            ois.close();
+            fis.close();
+
+            System.out.println("✅ Object read from file: " + file);
+        } catch (FileNotFoundException e) {
+            System.out.println("⚠ File not found: " + fileName + ".txt (first-time use may be normal)");
+        } catch (IOException e) {
+            System.out.println("❌ IO error when reading object.");
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            System.out.println("❌ Class not found while reading object.");
+            e.printStackTrace();
+        }
+
+        return object;
+    }
+}

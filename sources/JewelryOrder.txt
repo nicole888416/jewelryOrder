@@ -1,0 +1,86 @@
+package model;
+
+import java.io.Serializable;
+import java.util.Date;
+
+public class JewelryOrder implements Serializable{
+	private int id;
+	private String name;
+	private int Ring;
+	private int Earrings;
+	private int Necklace;
+	private int Bracelet;
+	private String order_date;
+	
+	
+	
+	public JewelryOrder() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+	public JewelryOrder(String name, int Ring, int Earrings,int Necklace,int Bracelet,String Order_date) {
+		super();
+		this.name = name;
+		this.Ring = Ring;
+		this.Earrings = Earrings;
+		this.Necklace = Necklace;
+		this.Bracelet = Bracelet;
+        Date d=new Date();
+		order_date=(1900+d.getYear())+"-"+(1+d.getMonth())+"-"+d.getDate();
+		
+		
+	}
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public int getRing() {
+		return Ring;
+	}
+	public void setRing(int ring) {
+		Ring = ring;
+	}
+	public int getEarrings() {
+		return Earrings;
+	}
+	public void setEarrings(int earrings) {
+		Earrings = earrings;
+	}
+	public int getNecklace() {
+		return Necklace;
+	}
+	public void setNecklace(int necklace) {
+		Necklace = necklace;
+	}
+	public int getBracelet() {
+		return Bracelet;
+	}
+	public void setBracelet(int bracelet) {
+		Bracelet = bracelet;
+	}
+
+	public String getOrder_date() {
+		return order_date;
+	}
+	public void setOrder_date(String order_date) {
+		this.order_date = order_date;
+	}
+	public int getSum() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	public void setSum(int finalSum) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+
+}
