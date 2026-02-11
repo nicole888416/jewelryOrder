@@ -66,14 +66,54 @@ src/
   測試管理員帳號:admin 密碼:admin
 5.測試下單流程，確認折扣、庫存與發票功能
 
+🧠 Design Highlights | 系統設計重點
+
+🔹 採用 MVC 架構：確保前端與業務邏輯分離，易於維護
+
+🔹 應用 OOP 封裝與繼承：每個功能模組清晰獨立
+
+🔹 JDBC + DAO 模式：資料庫操作結構化
+
+🔹 Swing GUI 整合：自訂樣式、色彩與事件控制
+
+🔹 檔案暫存機制：序列化保存暫時登入與訂單資料
+
+📸 Screenshots | 系統畫面
+畫面	預覽
+登入畫面	
 ![LoginUI](UI/LoginUI.png?raw=true)
+登入成功畫面
 ![LoginSuccessUI](UI/LoginSuccessUI.png?raw=true)
+登入失敗畫面
 ![LoginErrorUI](UI/LoginErrorUI.png?raw=true)
+會員註冊畫面
 ![AddCustomerUI](UI/AddCustomerUI.png?raw=true)
+會員註冊成功畫面
 ![AddCustomerSuccessUI](UI/AddCustomerSuccessUI.png?raw=true)
+會員註冊失敗畫面
 ![AddCustomerErrorUI](UI/AddCustomerErrorUI.png?raw=true)
+下單畫面	
 ![AddOrderUI](UI/AddOrderUI.png?raw=true)
+訂單確認	
 ![ConfirmUI](UI/ConfirmUI.png?raw=true)
+完成畫面	
 ![FinishedUI](UI/FinishedUI.png?raw=true)
+後台管理商品畫面
 ![ProductManagerUI](UI/ProductManagerUI.png?raw=true)
+
+🧑‍💻 Author | 作者介紹
+
+Nicole Chen
+🎓 Java 應用開發與資料庫設計愛好者
+💼 應徵職務：Java 全端工程師 / 應用系統開發工程師
+📧 Email: [nicole888416@example.com
+]
+🔗 LinkedIn: [your-linkedin-url]
+🌐 GitHub: [your-github-url]
+
+🎯 Resume Summary | 履歷摘要
+
+Jewelry Store Ordering System (Java Swing + MySQL)
+模擬珠寶店訂購流程的桌面應用程式，整合會員折扣、首購優惠、訂單列印與庫存管理。
+展現完整的 Java 物件導向設計、MVC 架構開發與資料庫串接能力。
 
