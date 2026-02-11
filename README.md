@@ -67,4 +67,13 @@ src/
 5.測試下單流程，確認折扣、庫存與發票功能
 
 ![LoginUI](UI/LoginUI.png?raw=true)
+![LoginSuccessUI](UI/LoginSuccessUI.png?raw=true)
+![LoginErrorUI](UI/LoginErrorUI.png?raw=true)
+![AddCustomerUI](UI/AddCustomerUI.png?raw=true)
+![AddCustomerSuccessUI](UI/AddCustomerSuccessUI.png?raw=true)
+![AddCustomerErrorUI](UI/AddCustomerErrorUI.png?raw=true)
+![AddOrderUI](UI/LoginErrorUI.png?raw=true)
+![ConfirmUI](UI/LoginErrorUI.png?raw=true)
+![FinishedUI](UI/LoginErrorUI.png?raw=true)
+![ProductManagerUI](UI/LoginErrorUI.png?raw=true)
 
