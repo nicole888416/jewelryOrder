@@ -116,10 +116,9 @@ src/
 Nicole Chen
 🎓 Java 應用開發與資料庫設計愛好者
 💼 應徵職務：Java 全端工程師 / 應用系統開發工程師
-📧 Email: [nicole888416@example.com
-]
+📧 Email: [nicole888416@example.com]
 🔗 LinkedIn: [your-linkedin-url]
-🌐 GitHub: [your-github-url]
+🌐 GitHub: [[your-github-url](https://github.com/nicole888416/jewelryOrder.git)]
 
 🎯 Resume Summary | 履歷摘要
 
