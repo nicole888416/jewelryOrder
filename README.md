@@ -78,10 +78,12 @@ src/
 
 🔹 檔案暫存機制：序列化保存暫時登入與訂單資料
 
-📸 Screenshots | 系統畫面
-畫面	預覽
+📸 Screenshots | 系統畫面<br>
+畫面	預覽<br>
+<hr>
 登入畫面	
-![LoginUI](UI/LoginUI.png?raw=true)
+![LoginUI](UI/LoginUI.png?raw=true)<br>
+<hr>
 登入成功畫面
 ![LoginSuccessUI](UI/LoginSuccessUI.png?raw=true)
 登入失敗畫面
