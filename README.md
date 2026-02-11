@@ -78,28 +78,36 @@ src/
 
 🔹 檔案暫存機制：序列化保存暫時登入與訂單資料
 
-📸 Screenshots | 系統畫面<br>
-畫面	預覽<br>
-<hr>
+📸 Screenshots | 系統畫面
+畫面	預覽
+
 登入畫面	
 ![LoginUI](UI/LoginUI.png?raw=true)<br>
-<hr>
+
 登入成功畫面
 ![LoginSuccessUI](UI/LoginSuccessUI.png?raw=true)
+
 登入失敗畫面
 ![LoginErrorUI](UI/LoginErrorUI.png?raw=true)
+
 會員註冊畫面
 ![AddCustomerUI](UI/AddCustomerUI.png?raw=true)
+
 會員註冊成功畫面
 ![AddCustomerSuccessUI](UI/AddCustomerSuccessUI.png?raw=true)
+
 會員註冊失敗畫面
 ![AddCustomerErrorUI](UI/AddCustomerErrorUI.png?raw=true)
+
 下單畫面	
 ![AddOrderUI](UI/AddOrderUI.png?raw=true)
+
 訂單確認	
 ![ConfirmUI](UI/ConfirmUI.png?raw=true)
+
 完成畫面	
 ![FinishedUI](UI/FinishedUI.png?raw=true)
+
 後台管理商品畫面
 ![ProductManagerUI](UI/ProductManagerUI.png?raw=true)
 
