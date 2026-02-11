@@ -66,4 +66,5 @@ src/
   測試管理員帳號:admin 密碼:admin
 5.測試下單流程，確認折扣、庫存與發票功能
 
+![LoginUI](UI/LoginUI.jpg?raw=true)
 
